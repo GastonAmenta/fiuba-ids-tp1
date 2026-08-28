@@ -1,44 +1,38 @@
 #!/bin/bash
 
-# Definition of base directories
-BASE_DIR="$HOME/EPNro1"
-ENTRADA_DIR="$BASE_DIR/entrada"
-SALIDA_DIR="$BASE_DIR/salida"
-PROCESADO_DIR="$BASE_DIR/procesado"
-LOG_FILE="$BASE_DIR/procesado.log"
-FLAG_FILE="$BASE_DIR/.running"
+# Ruta base del entorno EPNro1
+BASE="$HOME/EPNro1"
 
-# Variable de entorno FILENAME (valor por defecto: alumnos)
-if [ -z "$FILENAME" ]; then
+# Si la variable FILENAME esta vacia, asignamos el valor "alumnos" por defecto
+if [ "$FILENAME" = "" ]; then
     FILENAME="alumnos"
 fi
 
-OUT_FILE="$SALIDA_DIR/${FILENAME}.txt"
+# El bucle se ejecuta mientras exista el archivo bandera .running
+while [ -f "$BASE/.running" ]; do
 
-# Bucle de procesamiento mientras exista el archivo bandera
-while [ -f "$FLAG_FILE" ]; do
+    # Verificamos si existe el directorio de entrada
+    if [ -d "$BASE/entrada" ]; then
+        
+        # Iteramos directamente sobre los archivos .txt de la carpeta entrada
+        for f in "$BASE/entrada"/*.txt; do
+            
+            # Comprobamos que el archivo realmente exista
+            if [ -f "$f" ]; then
+                
+                # 1. Anadimos el contenido al archivo de salida correspondiente
+                cat "$f" >> "$BASE/salida/$FILENAME.txt"
 
-    # Captura de archivos .txt en la carpeta entrada
-    shopt -s nullglob
-    files=("$ENTRADA_DIR"/*.txt)
-    shopt -u nullglob
+                # 2. Guardamos la fecha actual y escribimos el registro en procesado.log
+                FECHA=$(date +"%d/%m/%Y %H:%M:%S")
+                echo "$FECHA - Procesado archivo $f" >> "$BASE/procesado.log"
 
-    if [ ${#files[@]} -gt 0 ]; then
-        for file in "${files[@]}"; do
-            filename_only=$(basename "$file")
-
-            # 1. Consolidar información en el archivo de salida
-            cat "$file" >> "$OUT_FILE"
-
-            # 2. Registrar en el archivo de log con fecha y hora
-            timestamp=$(date +"%d/%m/%Y %H:%M:%S")
-            echo "$timestamp - Procesado archivo $filename_only" >> "$LOG_FILE"
-
-            # 3. Mover archivo procesado a la carpeta correspondiente
-            mv "$file" "$PROCESADO_DIR/"
+                # 3. Movemos el archivo procesado al directorio procesado
+                mv "$f" "$BASE/procesado/"
+            fi
         done
     fi
 
-    # Pausa de 2 segundos entre verificaciones
+    # Pausa de 2 segundos antes de volver a verificar
     sleep 2
 done
