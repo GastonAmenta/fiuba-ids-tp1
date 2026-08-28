@@ -1,133 +1,127 @@
 #!/bin/bash
 
-# Definición de rutas principales
-BASE_DIR="$HOME/EPNro1"
-ENTRADA_DIR="$BASE_DIR/entrada"
-SALIDA_DIR="$BASE_DIR/salida"
-PROCESADO_DIR="$BASE_DIR/procesado"
-LOG_FILE="$BASE_DIR/procesado.log"
-FLAG_FILE="$BASE_DIR/.running"
+# Ruta base del entorno EPNro1
+BASE="$HOME/EPNro1"
 
-# Manejo del parámetro optativo -d (Limpieza completa)
-if [ "$1" == "-d" ]; then
-    echo "--------------------------------------------------"
-    echo " Eliminando entorno y deteniendo procesos..."
-    echo "--------------------------------------------------"
-    rm -f "$FLAG_FILE"
-    pkill -f consolidar.sh 2>/dev/null
-    rm -rf "$BASE_DIR"
-    echo " El entorno ha sido eliminado correctamente."
-    echo "--------------------------------------------------"
+# Opcion optativa -d para eliminar todo el entorno y procesos
+if [ "$1" = "-d" ]; then
+    echo "Eliminando todo..."
+    # Eliminamos el archivo bandera para detener consolidar.sh
+    rm -f "$BASE/.running"
+    # Eliminamos el directorio EPNro1 y todo su contenido
+    rm -rf "$BASE"
+    echo "Listo!"
     exit 0
 fi
 
-# Configuración de la variable FILENAME
-if [ -z "$FILENAME" ]; then
+# Si la variable FILENAME esta vacia, asignamos el valor "alumnos" por defecto
+if [ "$FILENAME" = "" ]; then
     FILENAME="alumnos"
 fi
-OUT_FILE="$SALIDA_DIR/${FILENAME}.txt"
 
-# Función para detener el proceso en segundo plano
-stop_background_process() {
-    if [ -f "$FLAG_FILE" ]; then
-        rm -f "$FLAG_FILE"
-        pkill -f consolidar.sh 2>/dev/null
-        echo " Proceso en segundo plano detenido."
-    fi
-}
+# Ruta del archivo final consolidado
+OUT="$BASE/salida/$FILENAME.txt"
 
-# Función para mostrar el menú de opciones
-show_menu() {
-    echo "=================================================="
-    echo "           SISTEMA DE GESTIÓN DE ALUMNOS          "
-    echo "=================================================="
-    echo " 1) Crear entorno"
-    echo " 2) Correr proceso"
-    echo " 3) Mostrar alumnos ordenados por Padrón"
-    echo " 4) Mostrar las 10 notas más altas"
-    echo " 5) Buscar alumno por Padrón"
-    echo " 6) Visualizar log"
-    echo " 7) Salir"
-    echo "=================================================="
-}
+# Inicializamos la variable de control para la opcion del menu
+OPCION=0
 
-# Bucle principal de la interfaz
-while true; do
-    show_menu
-    read -p " Seleccione una opción [1-7]: " option
+# El bucle se ejecuta MIENTRAS la opcion seleccionada NO sea 7
+while [ "$OPCION" != "7" ]; do
+    echo "=================================="
+    echo "1) Crear entorno"
+    echo "2) Correr proceso"
+    echo "3) Mostrar alumnos ordenados por Padron"
+    echo "4) Mostrar las 10 notas mas altas"
+    echo "5) Buscar alumno por Padron"
+    echo "6) Visualizar log"
+    echo "7) Salir"
+    echo "=================================="
+    
+    read -p "Opcion: " OPCION
     echo ""
 
-    case $option in
+    case $OPCION in
         1)
-            # Opción 1: Crear estructura de directorios
-            mkdir -p "$ENTRADA_DIR" "$SALIDA_DIR" "$PROCESADO_DIR"
-            echo "[OK] Entorno creado exitosamente en $BASE_DIR"
+            # Creacion de la estructura de carpetas
+            mkdir -p "$BASE/entrada"
+            mkdir -p "$BASE/salida"
+            mkdir -p "$BASE/procesado"
+            echo "Entorno creado en $BASE"
             ;;
+            
         2)
-            # Opción 2: Iniciar proceso en segundo plano (background)
-            if [ ! -d "$BASE_DIR" ]; then
-                echo "[ERROR] Primero debe crear el entorno (Opción 1)."
-            elif [ -f "$FLAG_FILE" ]; then
-                echo "[INFO] El proceso consolidar.sh ya se encuentra en ejecución."
+            # Iniciar el proceso de consolidacion en segundo plano
+            if [ ! -d "$BASE" ]; then
+                echo "Primero cree el entorno con la opcion 1"
             else
-                touch "$FLAG_FILE"
-                ./consolidar.sh &
-                echo "[OK] Proceso consolidar.sh iniciado en segundo plano."
+                if [ -f "$BASE/.running" ]; then
+                    echo "El proceso ya esta corriendo"
+                else
+                    # Creamos el archivo bandera
+                    touch "$BASE/.running"
+                    # Ejecutamos consolidar.sh en background
+                    ./consolidar.sh &
+                    echo "Proceso iniciado en background"
+                fi
             fi
             ;;
+            
         3)
-            # Opción 3: Listar alumnos ordenados por Padrón
-            if [ -f "$OUT_FILE" ]; then
-                echo "=================================================="
-                echo "       ALUMNOS ORDENADOS POR NÚMERO DE PADRÓN     "
-                echo "=================================================="
-                sort -n "$OUT_FILE"
+            # Mostrar lista de alumnos ordenada por Padron
+            if [ -f "$OUT" ]; then
+                echo "--- Lista por Padron ---"
+                sort -n "$OUT"
             else
-                echo "[INFO] El archivo $OUT_FILE aún no existe."
+                echo "El archivo no existe"
             fi
             ;;
+            
         4)
-            # Opción 4: Top 10 notas más altas (Columna 5)
-            if [ -f "$OUT_FILE" ]; then
-                echo "=================================================="
-                echo "            LAS 10 NOTAS MÁS ALTAS               "
-                echo "=================================================="
-                sort -k5,5nr "$OUT_FILE" | head -n 10
+            # Mostrar las 10 notas mas altas (columna 5)
+            if [ -f "$OUT" ]; then
+                echo "--- Top 10 Notas ---"
+                sort -n -r -k 5 "$OUT" | head -n 10
             else
-                echo "[INFO] El archivo $OUT_FILE aún no existe."
+                echo "El archivo no existe"
             fi
             ;;
+            
         5)
-            # Opción 5: Búsqueda individual por Padrón
-            if [ -f "$OUT_FILE" ]; then
-                read -p " Ingrese el número de Padrón a buscar: " padron
-                echo "--------------------------------------------------"
-                grep "^$padron " "$OUT_FILE" || echo "[INFO] No se encontraron registros para el Padrón $padron."
+            # Buscar datos de un alumno por su numero de Padron
+            if [ -f "$OUT" ]; then
+                read -p "Ingrese Padron: " PADRON
+                echo "--- Resultado ---"
+                grep "^$PADRON " "$OUT"
             else
-                echo "[INFO] El archivo $OUT_FILE aún no existe."
+                echo "El archivo no existe"
             fi
             ;;
+            
         6)
-            # Opción 6: Mostrar registro de logs
-            if [ -f "$LOG_FILE" ]; then
-                echo "=================================================="
-                echo "               HISTORIAL DE PROCESAMIENTO         "
-                echo "=================================================="
-                cat "$LOG_FILE"
+            # Visualizar el archivo de historial procesado.log
+            if [ -f "$BASE/procesado.log" ]; then
+                echo "--- Log ---"
+                cat "$BASE/procesado.log"
             else
-                echo "[INFO] El archivo de log aún no ha sido creado."
+                echo "El log no existe"
             fi
             ;;
+            
         7)
-            # Opción 7: Salida y limpieza de procesos
-            stop_background_process
-            echo " Saliendo del sistema..."
-            echo "=================================================="
-            exit 0
+            # Preparando el cierre del programa
+            echo "Saliendo del programa..."
+            # Eliminamos el archivo bandera para detener el script de segundo plano
+            rm -f "$BASE/.running"
             ;;
+            
         *)
-            echo "[ERROR] Opción inválida. Intente nuevamente."
+            # Manejo de opciones no validas
+            echo "Opcion invalida"
             ;;
     esac
+
     echo ""
 done
+
+# Mensaje final al romper el bucle tras seleccionar la opcion 7
+echo "Успешно вышло, хорошего дня!"
