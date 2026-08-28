@@ -1,15 +1,12 @@
 #!/bin/bash
 
-# Ruta base del entorno EPNro1
-BASE="$HOME/EPNro1"
-
 # Opcion optativa -d para eliminar todo el entorno y procesos
 if [ "$1" = "-d" ]; then
     echo "Eliminando todo..."
     # Eliminamos el archivo bandera para detener consolidar.sh
-    rm -f "$BASE/.running"
+    rm -f "$HOME/EPNro1/.running"
     # Eliminamos el directorio EPNro1 y todo su contenido
-    rm -rf "$BASE"
+    rm -rf "$HOME/EPNro1"
     echo "Listo!"
     exit 0
 fi
@@ -18,9 +15,6 @@ fi
 if [ "$FILENAME" = "" ]; then
     FILENAME="alumnos"
 fi
-
-# Ruta del archivo final consolidado
-OUT="$BASE/salida/$FILENAME.txt"
 
 # Inicializamos la variable de control para la opcion del menu
 OPCION=0
@@ -43,22 +37,22 @@ while [ "$OPCION" != "7" ]; do
     case $OPCION in
         1)
             # Creacion de la estructura de carpetas
-            mkdir -p "$BASE/entrada"
-            mkdir -p "$BASE/salida"
-            mkdir -p "$BASE/procesado"
-            echo "Entorno creado en $BASE"
+            mkdir -p "$HOME/EPNro1/entrada"
+            mkdir -p "$HOME/EPNro1/salida"
+            mkdir -p "$HOME/EPNro1/procesado"
+            echo "Entorno creado en $HOME/EPNro1"
             ;;
             
         2)
             # Iniciar el proceso de consolidacion en segundo plano
-            if [ ! -d "$BASE" ]; then
+            if [ ! -d "$HOME/EPNro1" ]; then
                 echo "Primero cree el entorno con la opcion 1"
             else
-                if [ -f "$BASE/.running" ]; then
+                if [ -f "$HOME/EPNro1/.running" ]; then
                     echo "El proceso ya esta corriendo"
                 else
                     # Creamos el archivo bandera
-                    touch "$BASE/.running"
+                    touch "$HOME/EPNro1/.running"
                     # Ejecutamos consolidar.sh en background
                     ./consolidar.sh &
                     echo "Proceso iniciado en background"
@@ -68,9 +62,9 @@ while [ "$OPCION" != "7" ]; do
             
         3)
             # Mostrar lista de alumnos ordenada por Padron
-            if [ -f "$OUT" ]; then
+            if [ -f "$HOME/EPNro1/salida/$FILENAME.txt" ]; then
                 echo "--- Lista por Padron ---"
-                sort -n "$OUT"
+                sort -n "$HOME/EPNro1/salida/$FILENAME.txt"
             else
                 echo "El archivo no existe"
             fi
@@ -78,9 +72,9 @@ while [ "$OPCION" != "7" ]; do
             
         4)
             # Mostrar las 10 notas mas altas (columna 5)
-            if [ -f "$OUT" ]; then
+            if [ -f "$HOME/EPNro1/salida/$FILENAME.txt" ]; then
                 echo "--- Top 10 Notas ---"
-                sort -n -r -k 5 "$OUT" | head -n 10
+                sort -n -r -k 5 "$HOME/EPNro1/salida/$FILENAME.txt" | head -n 10
             else
                 echo "El archivo no existe"
             fi
@@ -88,10 +82,10 @@ while [ "$OPCION" != "7" ]; do
             
         5)
             # Buscar datos de un alumno por su numero de Padron
-            if [ -f "$OUT" ]; then
+            if [ -f "$HOME/EPNro1/salida/$FILENAME.txt" ]; then
                 read -p "Ingrese Padron: " PADRON
                 echo "--- Resultado ---"
-                grep "^$PADRON " "$OUT"
+                grep "^$PADRON " "$HOME/EPNro1/salida/$FILENAME.txt"
             else
                 echo "El archivo no existe"
             fi
@@ -99,9 +93,9 @@ while [ "$OPCION" != "7" ]; do
             
         6)
             # Visualizar el archivo de historial procesado.log
-            if [ -f "$BASE/procesado.log" ]; then
+            if [ -f "$HOME/EPNro1/procesado.log" ]; then
                 echo "--- Log ---"
-                cat "$BASE/procesado.log"
+                cat "$HOME/EPNro1/procesado.log"
             else
                 echo "El log no existe"
             fi
@@ -111,7 +105,7 @@ while [ "$OPCION" != "7" ]; do
             # Preparando el cierre del programa
             echo "Saliendo del programa..."
             # Eliminamos el archivo bandera para detener el script de segundo plano
-            rm -f "$BASE/.running"
+            rm -f "$HOME/EPNro1/.running"
             ;;
             
         *)
