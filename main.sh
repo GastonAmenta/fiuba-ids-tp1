@@ -1,12 +1,10 @@
 #!/bin/bash
 
-# Opcion optativa -d para eliminar todo el entorno y procesos
+# Opcion optativa -d para eliminar todo el entorno y procesos (VERSIÓN MEZCLADA)
 if [ "$1" = "-d" ]; then
-    echo "Eliminando todo..."
-    # Eliminamos el archivo bandera para detener consolidar.sh
-    rm -f "$HOME/EPNro1/.running"
-    # Eliminamos el directorio EPNro1 y todo su contenido
-    rm -rf "$HOME/EPNro1"
+    echo "matando proceso..."
+    pkill -f "$HOME/EPNro1/consolidar.sh"
+    rm -rf "$HOME/EPNro1/"
     echo "Listo!"
     exit 0
 fi
@@ -22,10 +20,10 @@ OPCION=0
 # El bucle se ejecuta MIENTRAS la opcion seleccionada NO sea 7
 while [ "$OPCION" != "7" ]; do
     echo "=================================="
-    echo "1) Crear entorno"
-    echo "2) Correr proceso"
-    echo "3) Mostrar alumnos ordenados por Padron"
-    echo "4) Mostrar las 10 notas mas altas"
+    echo "1) Crear entorno (con consolidar.sh)"
+    echo "2) Correr proceso consolidar.sh en background"
+    echo "3) Listado de alumnos por número de padrón"
+    echo "4) Listado de alumnos con las 10 notas más altas"
     echo "5) Buscar alumno por Padron"
     echo "6) Visualizar log"
     echo "7) Salir"
@@ -36,63 +34,92 @@ while [ "$OPCION" != "7" ]; do
 
     case $OPCION in
         1)
-            # Creacion de la estructura de carpetas
-            mkdir -p "$HOME/EPNro1/entrada"
-            mkdir -p "$HOME/EPNro1/salida"
-            mkdir -p "$HOME/EPNro1/procesado"
-            echo "Entorno creado en $HOME/EPNro1"
+            # Creación del entorno CON el script consolidar.sh (VERSIÓN DEL SEGUNDO CÓDIGO)
+            echo "creando entorno..."
+
+            cd "$HOME"
+            mkdir -p EPNro1
+            cd EPNro1
+            mkdir -p entrada
+            mkdir -p salida
+            mkdir -p procesado
+
+            cat > "$HOME/EPNro1/consolidar.sh" << 'EOF'
+#!/bin/bash
+
+while true; do
+
+    for f in "$HOME/EPNro1/entrada"/*.txt; do
+
+        if [ -f "$f" ]; then
+
+            dia=$(date "+%y-%m-%d %H:%M:%S")
+
+            cat "$f" >> "$HOME/EPNro1/salida/$FILENAME.txt"
+
+            mv "$f" "$HOME/EPNro1/procesado"
+
+            echo "$dia,procesado,$f" >> "$HOME/EPNro1/procesado.log"
+
+        fi
+
+    done
+
+done
+EOF
+
+            echo "entorno creado correctamente"
             ;;
             
         2)
-            # Iniciar el proceso de consolidacion en segundo plano
+            # Iniciar el proceso de consolidacion en segundo plano (VERSIÓN DEL SEGUNDO CÓDIGO)
             if [ ! -d "$HOME/EPNro1" ]; then
-                echo "Primero cree el entorno con la opcion 1"
+                echo "Solicite la creacion de un entorno, vaya a la opcion 1"
             else
-                if [ -f "$HOME/EPNro1/.running" ]; then
-                    echo "El proceso ya esta corriendo"
-                else
-                    # Creamos el archivo bandera
-                    touch "$HOME/EPNro1/.running"
-                    # Ejecutamos consolidar.sh en background
-                    ./consolidar.sh &
-                    echo "Proceso iniciado en background"
-                fi
+                chmod +x "$HOME/EPNro1/consolidar.sh"
+                "$HOME/EPNro1/consolidar.sh" &
+                echo "proceso iniciado."
             fi
             ;;
             
         3)
-            # Mostrar lista de alumnos ordenada por Padron
+            # Mostrar lista de alumnos ordenada por Padron (VERSIÓN DEL TERCER CÓDIGO)
             if [ -f "$HOME/EPNro1/salida/$FILENAME.txt" ]; then
                 echo "--- Lista por Padron ---"
-                sort -n "$HOME/EPNro1/salida/$FILENAME.txt"
+                cat "$HOME/EPNro1/salida/$FILENAME.txt" | sort -rn
             else
-                echo "El archivo no existe"
+                echo "El archivo FILENAME.txt no existe"
             fi
             ;;
             
         4)
-            # Mostrar las 10 notas mas altas (columna 5)
+            # Mostrar las 10 notas mas altas (VERSIÓN DEL TERCER CÓDIGO)
             if [ -f "$HOME/EPNro1/salida/$FILENAME.txt" ]; then
                 echo "--- Top 10 Notas ---"
-                sort -n -r -k 5 "$HOME/EPNro1/salida/$FILENAME.txt" | head -n 10
+                cat "$HOME/EPNro1/salida/$FILENAME.txt" | sort -nr -k 5 | head -n 10
             else
-                echo "El archivo no existe"
+                echo "El archivo FILENAME.txt no existe"
             fi
             ;;
             
         5)
-            # Buscar datos de un alumno por su numero de Padron
+            # Buscar datos de un alumno por su numero de Padron (VERSIÓN MEZCLADA)
             if [ -f "$HOME/EPNro1/salida/$FILENAME.txt" ]; then
                 read -p "Ingrese Padron: " PADRON
                 echo "--- Resultado ---"
-                grep "^$PADRON " "$HOME/EPNro1/salida/$FILENAME.txt"
+                alumno=$(grep "^$PADRON " "$HOME/EPNro1/salida/$FILENAME.txt")
+                if [ -z "$alumno" ]; then
+                    echo "El alumno no fue encontrado"
+                else
+                    echo "$alumno"
+                fi
             else
                 echo "El archivo no existe"
             fi
             ;;
             
         6)
-            # Visualizar el archivo de historial procesado.log
+            # Visualizar el archivo de historial procesado.log (VERSIÓN MEZCLADA)
             if [ -f "$HOME/EPNro1/procesado.log" ]; then
                 echo "--- Log ---"
                 cat "$HOME/EPNro1/procesado.log"
@@ -102,20 +129,17 @@ while [ "$OPCION" != "7" ]; do
             ;;
             
         7)
-            # Preparando el cierre del programa
+            # Preparando el cierre del programa (VERSIÓN MEZCLADA)
             echo "Saliendo del programa..."
-            # Eliminamos el archivo bandera para detener el script de segundo plano
-            rm -f "$HOME/EPNro1/.running"
+            echo "Estas saliendo del programa"
+            exit 0
             ;;
             
         *)
             # Manejo de opciones no validas
-            echo "Opcion invalida"
+            echo "Esta no es una opcion valida"
             ;;
     esac
 
     echo ""
 done
-
-# Mensaje final al romper el bucle tras seleccionar la opcion 7
-echo "Успешно вышло, хорошего дня!"
