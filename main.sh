@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Opcion optativa -d para eliminar todo el entorno y procesos (VERSIÓN MEZCLADA)
+# Opcion optativa -d para eliminar todo el entorno y procesos
 if [ "$1" = "-d" ]; then
     echo "matando proceso..."
     pkill -f "$HOME/EPNro1/consolidar.sh"
@@ -34,7 +34,7 @@ while [ "$OPCION" != "7" ]; do
 
     case $OPCION in
         1)
-            # Creación del entorno CON el script consolidar.sh (VERSIÓN DEL SEGUNDO CÓDIGO)
+            # Creación del entorno CON el script consolidar.sh
             echo "creando entorno..."
 
             cd "$HOME"
@@ -44,35 +44,37 @@ while [ "$OPCION" != "7" ]; do
             mkdir -p salida
             mkdir -p procesado
 
-            cat > "$HOME/EPNro1/consolidar.sh" << 'EOF'
+            cat > "$HOME/EPNro1/consolidar.sh" << EOF
 #!/bin/bash
 
 while true; do
 
-    for f in "$HOME/EPNro1/entrada"/*.txt; do
+    for f in \$HOME/EPNro1/entrada/*.txt; do
 
-        if [ -f "$f" ]; then
+        if [ -f "\$f" ]; then
 
-            dia=$(date "+%y-%m-%d %H:%M:%S")
+            dia=\$(date "+\%y-\%m-\%d \%H:\%M:\%S")
 
-            cat "$f" >> "$HOME/EPNro1/salida/$FILENAME.txt"
+            cat "\$f" >> \$HOME/EPNro1/salida/${FILENAME}.txt
 
-            mv "$f" "$HOME/EPNro1/procesado"
+            mv "\$f" \$HOME/EPNro1/procesado
 
-            echo "$dia,procesado,$f" >> "$HOME/EPNro1/procesado.log"
+            echo "\$dia,procesado,\$f" >> \$HOME/EPNro1/procesado.log
 
         fi
 
     done
 
+    sleep 2
+
 done
 EOF
 
-            echo "entorno creado correctamente"
+            echo "entorno creado correctamente con FILENAME=$FILENAME"
             ;;
             
         2)
-            # Iniciar el proceso de consolidacion en segundo plano (VERSIÓN DEL SEGUNDO CÓDIGO)
+            # Iniciar el proceso de consolidacion en segundo plano
             if [ ! -d "$HOME/EPNro1" ]; then
                 echo "Solicite la creacion de un entorno, vaya a la opcion 1"
             else
@@ -83,31 +85,31 @@ EOF
             ;;
             
         3)
-            # Mostrar lista de alumnos ordenada por Padron (VERSIÓN DEL TERCER CÓDIGO)
-            if [ -f "$HOME/EPNro1/salida/$FILENAME.txt" ]; then
+            # Mostrar lista de alumnos ordenada por Padron 
+            if [ -f "$HOME/EPNro1/salida/${FILENAME}.txt" ]; then
                 echo "--- Lista por Padron ---"
-                cat "$HOME/EPNro1/salida/$FILENAME.txt" | sort -rn
+                cat "$HOME/EPNro1/salida/${FILENAME}.txt" | sort -rn
             else
-                echo "El archivo FILENAME.txt no existe"
+                echo "El archivo ${FILENAME}.txt no existe"
             fi
             ;;
             
         4)
-            # Mostrar las 10 notas mas altas (VERSIÓN DEL TERCER CÓDIGO)
-            if [ -f "$HOME/EPNro1/salida/$FILENAME.txt" ]; then
+            # Mostrar las 10 notas mas altas 
+            if [ -f "$HOME/EPNro1/salida/${FILENAME}.txt" ]; then
                 echo "--- Top 10 Notas ---"
-                cat "$HOME/EPNro1/salida/$FILENAME.txt" | sort -nr -k 5 | head -n 10
+                cat "$HOME/EPNro1/salida/${FILENAME}.txt" | sort -nr -k 5 | head -n 10
             else
-                echo "El archivo FILENAME.txt no existe"
+                echo "El archivo ${FILENAME}.txt no existe"
             fi
             ;;
             
         5)
-            # Buscar datos de un alumno por su numero de Padron (VERSIÓN MEZCLADA)
-            if [ -f "$HOME/EPNro1/salida/$FILENAME.txt" ]; then
+            # Buscar datos de un alumno por su numero de Padron 
+            if [ -f "$HOME/EPNro1/salida/${FILENAME}.txt" ]; then
                 read -p "Ingrese Padron: " PADRON
                 echo "--- Resultado ---"
-                alumno=$(grep "^$PADRON " "$HOME/EPNro1/salida/$FILENAME.txt")
+                alumno=$(grep "^$PADRON " "$HOME/EPNro1/salida/${FILENAME}.txt")
                 if [ -z "$alumno" ]; then
                     echo "El alumno no fue encontrado"
                 else
@@ -119,7 +121,7 @@ EOF
             ;;
             
         6)
-            # Visualizar el archivo de historial procesado.log (VERSIÓN MEZCLADA)
+            # Visualizar el archivo de historial procesado.log
             if [ -f "$HOME/EPNro1/procesado.log" ]; then
                 echo "--- Log ---"
                 cat "$HOME/EPNro1/procesado.log"
@@ -129,7 +131,7 @@ EOF
             ;;
             
         7)
-            # Preparando el cierre del programa (VERSIÓN MEZCLADA)
+            # Preparando el cierre del programa 
             echo "Saliendo del programa..."
             echo "Estas saliendo del programa"
             exit 0
