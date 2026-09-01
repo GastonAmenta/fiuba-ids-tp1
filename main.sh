@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Opcion optativa -d para eliminar todo el entorno y procesos
+# Opcion optativa -d para eliminar todo el entorno y procesos (VERSIÓN MEZCLADA)
 if [ "$1" = "-d" ]; then
     echo "matando proceso..."
     pkill -f "$HOME/EPNro1/consolidar.sh"
@@ -34,7 +34,7 @@ while [ "$OPCION" != "7" ]; do
 
     case $OPCION in
         1)
-            # Creación del entorno CON el script consolidar.sh
+            # Creación del entorno CON el script consolidar.sh (VERSIÓN DEL SEGUNDO CÓDIGO)
             echo "creando entorno..."
 
             cd "$HOME"
@@ -53,7 +53,7 @@ while true; do
 
         if [ -f "\$f" ]; then
 
-            dia=\$(date "+\%y-\%m-\%d \%H:\%M:\%S")
+            dia=\$(date "+%y-%m-%d %H:%M:%S")
 
             cat "\$f" >> \$HOME/EPNro1/salida/${FILENAME}.txt
 
@@ -74,7 +74,7 @@ EOF
             ;;
             
         2)
-            # Iniciar el proceso de consolidacion en segundo plano
+            # Iniciar el proceso de consolidacion en segundo plano (VERSIÓN DEL SEGUNDO CÓDIGO)
             if [ ! -d "$HOME/EPNro1" ]; then
                 echo "Solicite la creacion de un entorno, vaya a la opcion 1"
             else
@@ -85,7 +85,7 @@ EOF
             ;;
             
         3)
-            # Mostrar lista de alumnos ordenada por Padron 
+            # Mostrar lista de alumnos ordenada por Padron (VERSIÓN DEL TERCER CÓDIGO)
             if [ -f "$HOME/EPNro1/salida/${FILENAME}.txt" ]; then
                 echo "--- Lista por Padron ---"
                 cat "$HOME/EPNro1/salida/${FILENAME}.txt" | sort -rn
@@ -95,7 +95,7 @@ EOF
             ;;
             
         4)
-            # Mostrar las 10 notas mas altas 
+            # Mostrar las 10 notas mas altas (VERSIÓN DEL TERCER CÓDIGO)
             if [ -f "$HOME/EPNro1/salida/${FILENAME}.txt" ]; then
                 echo "--- Top 10 Notas ---"
                 cat "$HOME/EPNro1/salida/${FILENAME}.txt" | sort -nr -k 5 | head -n 10
@@ -105,7 +105,7 @@ EOF
             ;;
             
         5)
-            # Buscar datos de un alumno por su numero de Padron 
+            # Buscar datos de un alumno por su numero de Padron (VERSIÓN MEZCLADA)
             if [ -f "$HOME/EPNro1/salida/${FILENAME}.txt" ]; then
                 read -p "Ingrese Padron: " PADRON
                 echo "--- Resultado ---"
@@ -121,7 +121,7 @@ EOF
             ;;
             
         6)
-            # Visualizar el archivo de historial procesado.log
+            # Visualizar el archivo de historial procesado.log (VERSIÓN MEZCLADA)
             if [ -f "$HOME/EPNro1/procesado.log" ]; then
                 echo "--- Log ---"
                 cat "$HOME/EPNro1/procesado.log"
@@ -131,7 +131,7 @@ EOF
             ;;
             
         7)
-            # Preparando el cierre del programa 
+            # Preparando el cierre del programa (VERSIÓN MEZCLADA)
             echo "Saliendo del programa..."
             echo "Estas saliendo del programa"
             exit 0
