@@ -1,15 +1,15 @@
 #!/bin/bash
 
-# Opcion optativa -d para eliminar todo el entorno y procesos (VERSIÓN MEZCLADA)
+# Parametro optativo -d para eliminar el entorno
 if [ "$1" = "-d" ]; then
     echo "matando proceso..."
-    pkill -f "$HOME/EPNro1/consolidar.sh"
+    pkill -f "consolidar.sh"
     rm -rf "$HOME/EPNro1/"
     echo "Listo!"
     exit 0
 fi
 
-# Si la variable FILENAME esta vacia, asignamos el valor "alumnos" por defecto
+# Variable de entorno por defecto
 if [ "$FILENAME" = "" ]; then
     FILENAME="alumnos"
 fi
@@ -21,10 +21,10 @@ OPCION=0
 while [ "$OPCION" != "7" ]; do
     echo "=================================="
     echo "1) Crear entorno (con consolidar.sh)"
-    echo "2) Correr proceso consolidar.sh en background"
-    echo "3) Listado de alumnos por número de padrón"
-    echo "4) Listado de alumnos con las 10 notas más altas"
-    echo "5) Buscar alumno por Padron"
+    echo "2) Correr proceso consolidar.sh"
+    echo "3) Listado de alumnos por padron"
+    echo "4) Top 10 notas mas altas"
+    echo "5) Buscar alumno por padron"
     echo "6) Visualizar log"
     echo "7) Salir"
     echo "=================================="
@@ -34,58 +34,47 @@ while [ "$OPCION" != "7" ]; do
 
     case $OPCION in
         1)
-            # Creación del entorno CON el script consolidar.sh (VERSIÓN DEL SEGUNDO CÓDIGO)
+        # Creación del entorno CON el script consolidar.sh 
             echo "creando entorno..."
 
-            cd "$HOME"
-            mkdir -p EPNro1
-            cd EPNro1
-            mkdir -p entrada
-            mkdir -p salida
-            mkdir -p procesado
+            mkdir -p "$HOME/EPNro1/entrada"
+            mkdir -p "$HOME/EPNro1/salida"
+            mkdir -p "$HOME/EPNro1/procesado"
 
             cat > "$HOME/EPNro1/consolidar.sh" << EOF
 #!/bin/bash
 
 while true; do
-
     for f in \$HOME/EPNro1/entrada/*.txt; do
-
         if [ -f "\$f" ]; then
-
-            dia=\$(date "+%y-%m-%d %H:%M:%S")
-
+            FECHA=\$(date +"%d/%m/%Y %H:%M:%S")
+            NOMBRE_ARCHIVO=\$(basename "\$f")
+            
             cat "\$f" >> \$HOME/EPNro1/salida/${FILENAME}.txt
-
             mv "\$f" \$HOME/EPNro1/procesado
-
-            echo "\$dia,procesado,\$f" >> \$HOME/EPNro1/procesado.log
-
+            
+            echo "\$FECHA - Procesado archivo \$NOMBRE_ARCHIVO" >> \$HOME/EPNro1/procesado.log
         fi
-
     done
-
     sleep 2
-
 done
 EOF
-
+            chmod +x "$HOME/EPNro1/consolidar.sh"
             echo "entorno creado correctamente con FILENAME=$FILENAME"
             ;;
             
         2)
-            # Iniciar el proceso de consolidacion en segundo plano (VERSIÓN DEL SEGUNDO CÓDIGO)
+        # Iniciar el proceso de consolidacion en segundo plano
             if [ ! -d "$HOME/EPNro1" ]; then
                 echo "Solicite la creacion de un entorno, vaya a la opcion 1"
             else
-                chmod +x "$HOME/EPNro1/consolidar.sh"
                 "$HOME/EPNro1/consolidar.sh" &
                 echo "proceso iniciado."
             fi
             ;;
             
         3)
-            # Mostrar lista de alumnos ordenada por Padron (VERSIÓN DEL TERCER CÓDIGO)
+        # Mostrar lista de alumnos ordenada por Padron
             if [ -f "$HOME/EPNro1/salida/${FILENAME}.txt" ]; then
                 echo "--- Lista por Padron ---"
                 cat "$HOME/EPNro1/salida/${FILENAME}.txt" | sort -rn
@@ -95,7 +84,7 @@ EOF
             ;;
             
         4)
-            # Mostrar las 10 notas mas altas (VERSIÓN DEL TERCER CÓDIGO)
+        # Mostrar las 10 notas mas altas
             if [ -f "$HOME/EPNro1/salida/${FILENAME}.txt" ]; then
                 echo "--- Top 10 Notas ---"
                 cat "$HOME/EPNro1/salida/${FILENAME}.txt" | sort -nr -k 5 | head -n 10
@@ -105,7 +94,7 @@ EOF
             ;;
             
         5)
-            # Buscar datos de un alumno por su numero de Padron (VERSIÓN MEZCLADA)
+        # Buscar datos de un alumno por su numero de Padron
             if [ -f "$HOME/EPNro1/salida/${FILENAME}.txt" ]; then
                 read -p "Ingrese Padron: " PADRON
                 echo "--- Resultado ---"
@@ -121,7 +110,7 @@ EOF
             ;;
             
         6)
-            # Visualizar el archivo de historial procesado.log (VERSIÓN MEZCLADA)
+        # Visualizar el archivo de historial procesado.log 
             if [ -f "$HOME/EPNro1/procesado.log" ]; then
                 echo "--- Log ---"
                 cat "$HOME/EPNro1/procesado.log"
@@ -131,14 +120,14 @@ EOF
             ;;
             
         7)
-            # Preparando el cierre del programa (VERSIÓN MEZCLADA)
+        # Preparando el cierre del programa (VERSIÓN MEZCLADA)
             echo "Saliendo del programa..."
-            echo "Estas saliendo del programa"
+            echo "Chau! До новых встреч!"
             exit 0
             ;;
             
         *)
-            # Manejo de opciones no validas
+        # Manejo de opciones no validas
             echo "Esta no es una opcion valida"
             ;;
     esac
