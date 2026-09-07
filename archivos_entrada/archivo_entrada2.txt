@@ -1,0 +1,10 @@
+33445 Pablo Martinez pmartinez@fi.uba.ar 6
+55667 Lucia Rodriguez lrodriguez@fi.uba.ar 8
+77889 Miguel Fernandez mfernandez@fi.uba.ar 9
+99001 Ana Torres atorres@fi.uba.ar 7
+11234 Carlos Sanchez csanchez@fi.uba.ar 4
+22345 Maria Perez mperez@fi.uba.ar 10
+33456 Juan Gonzalez jgonzalez@fi.uba.ar 5
+44567 Laura Martinez lmartinez@fi.uba.ar 8
+55678 Pedro Gomez pgomez@fi.uba.ar 6
+66789 Sofia Rodriguez srodriguez@fi.uba.ar 9

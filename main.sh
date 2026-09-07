@@ -77,7 +77,7 @@ EOF
         # Mostrar lista de alumnos ordenada por Padron
             if [ -f "$HOME/EPNro1/salida/${FILENAME}.txt" ]; then
                 echo "--- Lista por Padron ---"
-                cat "$HOME/EPNro1/salida/${FILENAME}.txt" | sort -rn
+                cat "$HOME/EPNro1/salida/${FILENAME}.txt" | sort -n
             else
                 echo "El archivo ${FILENAME}.txt no existe"
             fi
